@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diário do Método Billings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/locale/pt-br.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+        }
+        .calendar-day {
+            min-height: 100px;
+        }
+        .symbol {
+            font-size: 1.5rem;
+            font-weight: bold;
+            line-height: 1;
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 500px;
+        }
+        .cycle-chart-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+        }
+        .chart-day {
+            width: 40px;
+            height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .chart-day .symbol-small {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .accordion-header {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .accordion-content {
+            transition: max-height 0.3s ease-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        .accordion-content.open {
+            max-height: 2000px; /* Adjust as needed */
+        }
+        .prose p { margin-bottom: 1em; }
+        .prose ul { list-style-position: inside; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Main App Container -->
+    <div id="app" class="container mx-auto p-4 max-w-5xl">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-pink-600">Diário do Método Billings</h1>
+            <p class="text-gray-600 mt-2">Acompanhe, aprenda e tire suas dúvidas.</p>
+        </header>
+
+        <div class="space-y-4">
+            <!-- Accordion 1: Cycle Journal -->
+            <div class="bg-white rounded-lg shadow-lg">
+                <div class="accordion-header p-4 flex justify-between items-center bg-gray-50 rounded-t-lg" data-target="#journal-content">
+                    <h2 class="text-xl font-semibold">Diário do Ciclo</h2>
+                    <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                <div id="journal-content" class="accordion-content open p-4">
+                    <div id="interpretation-container" class="bg-pink-100 border-l-4 border-pink-500 text-pink-700 p-4 rounded-md shadow-md mb-6 text-center">
+                        <h3 class="font-bold">Status do Ciclo</h3>
+                        <p id="interpretation-text" class="mt-1">Aguardando dados...</p>
+                    </div>
+                    <div id="calendar-container">
+                        <div class="flex justify-between items-center mb-4">
+                            <button id="prev-month" class="p-2 rounded-full hover:bg-gray-200"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                            <h2 id="current-month-year" class="text-xl font-semibold"></h2>
+                            <button id="next-month" class="p-2 rounded-full hover:bg-gray-200"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+                        </div>
+                        <div class="calendar-grid text-center font-medium text-gray-600 mb-2">
+                            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+                        </div>
+                        <div id="calendar-grid" class="calendar-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accordion 2: Learning the Method -->
+            <div class="bg-white rounded-lg shadow-lg">
+                <div class="accordion-header p-4 flex justify-between items-center bg-gray-50 rounded-lg" data-target="#explanation-content">
+                    <h2 class="text-xl font-semibold">Aprendendo o Método</h2>
+                    <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                <div id="explanation-content" class="accordion-content p-4 prose max-w-none">
+                    <h3 class="font-semibold">Princípios Básicos</h3>
+                    <p>O Método de Ovulação Billings® baseia-se na observação da sensação na vulva e na aparência de qualquer muco cervical. Essas observações mudam ao longo do ciclo e indicam os períodos de infertilidade e fertilidade.</p>
+                    
+                    <h4 class="font-semibold">O Que Observar?</h4>
+                    <ul>
+                        <li><strong>Sensação na Vulva:</strong> Durante as atividades diárias (andar, sentar), preste atenção se a sensação é de <span class="font-bold">seca</span>, <span class="font-bold">úmida</span> ou <span class="font-bold">escorregadia</span>.</li>
+                        <li><strong>Aparência do Muco:</strong> Observe a aparência de qualquer secreção. Ela pode ser <span class="font-bold">opaca</span>, <span class="font-bold">turva</span>, <span class="font-bold">transparente</span>, <span class="font-bold">elástica</span> (como clara de ovo), etc.</li>
+                    </ul>
+
+                    <h4 class="font-semibold">As Fases do Ciclo</h4>
+                    <ul>
+                        <li><strong>Padrão Básico de Infertilidade (PBI):</strong> É um padrão sem mudanças que ocorre antes da ovulação. Pode ser de secura total (sem muco) ou um fluxo constante que não muda de dia para dia. Durante o PBI, não há fertilidade.</li>
+                        <li><strong>Fase Fértil:</strong> Começa quando há qualquer mudança no PBI. O muco começa a aparecer ou mudar, tornando-se progressivamente mais úmido, elástico e escorregadio. A sensação na vulva muda de seca para não mais seca.</li>
+                        <li><strong>Dia Ápice:</strong> É o último dia de sensação escorregadia na vulva. Este é o dia de máxima fertilidade e a ovulação ocorre muito perto deste dia. Após o Ápice, a sensação muda abruptamente para seca ou pegajosa.</li>
+                        <li><strong>Fase Pós-Ápice:</strong> Os 3 dias seguintes ao dia Ápice são considerados possivelmente férteis. A partir da manhã do 4º dia após o Ápice, inicia-se a fase infértil pós-ovulatória, que dura até a próxima menstruação.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Accordion 3: AI Chat -->
+            <div class="bg-white rounded-lg shadow-lg">
+                <div class="accordion-header p-4 flex justify-between items-center bg-gray-50 rounded-lg" data-target="#ai-chat-content">
+                    <h2 class="text-xl font-semibold">Tire suas Dúvidas com IA</h2>
+                    <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                <div id="ai-chat-content" class="accordion-content p-4">
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="ai-prompt-input" placeholder="Ex: O que é o dia Ápice?" class="flex-grow p-2 border rounded-md">
+                        <button id="ai-submit-btn" class="bg-pink-600 text-white font-bold py-2 px-4 rounded hover:bg-pink-700 transition-colors">Perguntar</button>
+                    </div>
+                    <div id="ai-response-container" class="mt-4 p-4 bg-gray-50 rounded-md min-h-[50px]">
+                        <p id="ai-response-placeholder" class="text-gray-500">A resposta da IA aparecerá aqui.</p>
+                        <div id="ai-loading-indicator" class="hidden">
+                            <p class="text-gray-600 animate-pulse">Pensando...</p>
+                        </div>
+                        <div id="ai-response-text" class="prose max-w-none"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Sections -->
+            <div id="other-sections">
+                <div class="mt-6 p-4 bg-white rounded-lg shadow-lg">
+                    <h3 class="font-semibold text-lg mb-4">Gráfico do Ciclo Atual</h3>
+                    <div id="cycle-chart-container" class="cycle-chart-grid">
+                        <!-- Chart will be rendered here by JavaScript -->
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-white rounded-lg shadow-lg">
+                    <h3 class="font-semibold text-lg mb-4">Histórico de Ciclos</h3>
+                    <div class="overflow-x-auto">
+                        <table id="cycle-history-table" class="min-w-full text-sm text-left">
+                            <thead class="bg-gray-100"><tr><th class="p-2">Início</th><th class="p-2">Duração</th><th class="p-2">Dia do Ápice</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-white rounded-lg shadow-lg">
+                    <h3 class="font-semibold text-lg mb-2">Configurações</h3>
+                    <div id="notifications-container">
+                        <button id="enable-notifications-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700">Ativar Lembretes Diários</button>
+                        <p id="notifications-status" class="text-sm text-gray-600 mt-2"></p>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-white rounded-lg shadow-lg">
+                    <h3 class="font-semibold text-lg mb-2">Legenda</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 text-sm">
+                        <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-red-500 mr-2"></div><span>Sangramento</span></div>
+                        <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-green-500 mr-2"></div><span>Seca / Infértil</span></div>
+                        <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-yellow-400 mr-2"></div><span>Fluxo Infértil</span></div>
+                        <div class="flex items-center"><span class="text-2xl mr-2">👶</span><span>Poss. Fértil</span></div>
+                        <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-yellow-200 mr-2 flex justify-center items-center font-bold">1</div><span>Pós-Ápice</span></div>
+                        <div class="flex items-center"><span class="font-bold text-xl mr-2">X</span><span>Dia Ápice</span></div>
+                        <div class="flex items-center"><span class="text-red-500 mr-2 text-xl">❤️</span><span>Ato conjugal</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="entry-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-semibold mb-4" id="modal-date"></h3>
+            <form id="entry-form">
+                <input type="hidden" id="form-date-iso">
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">Sangramento?</label>
+                    <select id="bleeding" class="w-full p-2 border rounded-md"><option value="none">Não</option><option value="spotting">Manchas</option><option value="menstruation">Menstruação</option></select>
+                </div>
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">Sensação?</label>
+                    <select id="sensation" class="w-full p-2 border rounded-md"><option value="dry">Seca</option><option value="damp">Úmida</option><option value="sticky">Pegajosa</option><option value="slippery">Escorregadia</option></select>
+                </div>
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">Aparência?</label>
+                    <select id="appearance" class="w-full p-2 border rounded-md"><option value="none">Nenhuma</option><option value="cloudy">Turvo</option><option value="transparent">Transparente</option></select>
+                </div>
+                <div class="mb-4"><label for="is-peak" class="flex items-center"><input type="checkbox" id="is-peak" class="h-4 w-4 text-pink-600"><span class="ml-2">Marcar como dia Ápice (X)</span></label></div>
+                <div class="mb-6"><label for="hadIntercourse" class="flex items-center"><input type="checkbox" id="hadIntercourse" class="h-4 w-4 text-pink-600"><span class="ml-2">Marcar ato conjugal ❤️</span></label></div>
+                <div class="flex justify-between items-center">
+                    <button type="button" id="delete-entry" class="px-4 py-2 bg-red-600 text-white rounded">Excluir</button>
+                    <div><button type="button" id="cancel-entry" class="px-4 py-2 bg-gray-300 rounded mr-2">Cancelar</button><button type="submit" class="px-4 py-2 bg-pink-600 text-white rounded">Salvar</button></div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="delete-confirm-modal" class="modal-backdrop hidden">
+        <div class="modal-content text-center">
+            <h3 class="text-xl font-semibold mb-4">Confirmar Exclusão</h3>
+            <p class="text-gray-600 mb-6">Tem certeza?</p>
+            <div class="flex justify-center gap-4"><button id="cancel-delete-btn" class="px-6 py-2 bg-gray-300 rounded">Cancelar</button><button id="confirm-delete-btn" class="px-6 py-2 bg-red-600 text-white rounded">Excluir</button></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyAauc7j8EMG0MrIMwJO6pIm7XjU-QgGXxc",
+          authDomain: "meu-diario-billings.firebaseapp.com",
+          projectId: "meu-diario-billings",
+          storageBucket: "meu-diario-billings.appspot.com",
+          messagingSenderId: "60903151517",
+          appId: "1:60903151517:web:dd4ab7c33fd9a928340174",
+          measurementId: "G-6SH2J0670Z"
+        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'billings-app-default';
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentMonth = dayjs().locale('pt-br');
+        let entries = {};
+        let userId = null;
+        let unsubscribe = null;
+        let dateToDelete = null;
+
+        // --- UI Elements ---
+        const calendarGrid = document.getElementById('calendar-grid');
+        const monthYearEl = document.getElementById('current-month-year');
+        const entryModal = document.getElementById('entry-modal');
+        const deleteConfirmModal = document.getElementById('delete-confirm-modal');
+        const modalDateEl = document.getElementById('modal-date');
+        const form = document.getElementById('entry-form');
+        const formDateISOEl = document.getElementById('form-date-iso');
+        const cycleChartContainer = document.getElementById('cycle-chart-container');
+        const cycleHistoryTableBody = document.querySelector('#cycle-history-table tbody');
+        const interpretationText = document.getElementById('interpretation-text');
+        const notificationsBtn = document.getElementById('enable-notifications-btn');
+        const notificationsStatus = document.getElementById('notifications-status');
+        const aiPromptInput = document.getElementById('ai-prompt-input');
+        const aiSubmitBtn = document.getElementById('ai-submit-btn');
+        const aiResponsePlaceholder = document.getElementById('ai-response-placeholder');
+        const aiLoadingIndicator = document.getElementById('ai-loading-indicator');
+        const aiResponseText = document.getElementById('ai-response-text');
+
+        // --- Initialization ---
+        function initializeAppView(uid) {
+            userId = uid;
+            listenToEntries();
+            setupNotifications();
+            setupAccordion();
+            setupAIChat();
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                initializeAppView(user.uid);
+            } else {
+                signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
+            }
+        });
+        
+        // --- Accordion Logic ---
+        function setupAccordion() {
+            const headers = document.querySelectorAll('.accordion-header');
+            const journalContent = document.getElementById('journal-content');
+            const otherSections = document.getElementById('other-sections');
+
+            // Initially hide all but the journal
+            document.querySelectorAll('.accordion-content').forEach(content => {
+                if(content.id !== 'journal-content') {
+                    content.classList.remove('open');
+                    content.previousElementSibling.querySelector('svg').style.transform = 'rotate(0deg)';
+                } else {
+                     otherSections.style.display = 'block';
+                     content.previousElementSibling.querySelector('svg').style.transform = 'rotate(180deg)';
+                }
+            });
+
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const target = document.querySelector(header.dataset.target);
+                    const icon = header.querySelector('svg');
+
+                    if (target.classList.contains('open')) {
+                        target.classList.remove('open');
+                        icon.style.transform = 'rotate(0deg)';
+                        if (target.id === 'journal-content') {
+                            otherSections.style.display = 'none';
+                        }
+                    } else {
+                        // Optional: close others when one opens
+                        document.querySelectorAll('.accordion-content.open').forEach(openContent => {
+                            openContent.classList.remove('open');
+                            openContent.previousElementSibling.querySelector('svg').style.transform = 'rotate(0deg)';
+                            if (openContent.id === 'journal-content') {
+                                otherSections.style.display = 'none';
+                            }
+                        });
+                        target.classList.add('open');
+                        icon.style.transform = 'rotate(180deg)';
+                        if (target.id === 'journal-content') {
+                            otherSections.style.display = 'block';
+                        }
+                    }
+                });
+            });
+        }
+
+
+        // --- Firestore Listener ---
+        function listenToEntries() {
+            if (unsubscribe) unsubscribe();
+            if (!userId) return;
+            const entriesCollection = collection(db, 'artifacts', appId, 'users', userId, 'entries');
+            unsubscribe = onSnapshot(entriesCollection, (snapshot) => {
+                entries = {};
+                snapshot.forEach((doc) => { entries[doc.id] = doc.data(); });
+                renderAll();
+            }, (error) => console.error("Error listening to entries:", error));
+        }
+
+        // --- Main Render Functions ---
+        function renderAll() {
+            renderCalendar();
+            renderCycleChartAndHistory();
+            updateInterpretation();
+        }
+
+        function renderCalendar() {
+            calendarGrid.innerHTML = '';
+            monthYearEl.textContent = currentMonth.format('MMMM [de] YYYY');
+            const startDate = currentMonth.startOf('month');
+            const endDate = currentMonth.endOf('month');
+            const startDayOfWeek = startDate.day();
+            for (let i = 0; i < startDayOfWeek; i++) { calendarGrid.appendChild(document.createElement('div')).className = 'border-r border-b'; }
+            for (let i = 1; i <= endDate.date(); i++) {
+                const date = startDate.date(i);
+                const dateStr = date.format('YYYY-MM-DD');
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day relative p-2 border-r border-b flex flex-col cursor-pointer hover:bg-pink-50';
+                dayEl.dataset.date = dateStr;
+                const dayNumber = document.createElement('span');
+                dayNumber.className = 'self-start font-medium';
+                dayNumber.textContent = i;
+                if (date.isSame(dayjs(), 'day')) { dayNumber.className += ' bg-pink-600 text-white rounded-full w-7 h-7 flex items-center justify-center'; }
+                dayEl.appendChild(dayNumber);
+                if (entries[dateStr]) { applyEntryStyle(dayEl, entries[dateStr]); }
+                dayEl.addEventListener('click', () => openEntryModal(date));
+                calendarGrid.appendChild(dayEl);
+            }
+        }
+        
+        function getCycleColorAndSymbol(entry) {
+            let symbol = '', bgColor = 'bg-white', textColor = 'text-gray-800';
+            if (!entry) return {bgColor, symbol, textColor};
+            if (entry.bleeding === 'menstruation' || entry.bleeding === 'spotting') {
+                bgColor = 'bg-red-500'; symbol = '●'; textColor = 'text-white';
+            } else if (entry.isPeak) {
+                symbol = 'X'; textColor = 'text-red-600';
+            } else {
+                 const peakDate = findLastPeakDate(dayjs(entry.date));
+                 if (peakDate) {
+                     const daysAfterPeak = dayjs(entry.date).diff(peakDate, 'day');
+                     if (daysAfterPeak > 0 && daysAfterPeak <= 3) {
+                         bgColor = 'bg-yellow-200'; symbol = daysAfterPeak;
+                         return {bgColor, symbol, textColor};
+                     }
+                 }
+                switch (entry.sensation) {
+                    case 'dry': bgColor = 'bg-green-500'; symbol = '|'; textColor = 'text-white'; break;
+                    case 'sticky': case 'damp':
+                        if (entry.appearance === 'none') { bgColor = 'bg-yellow-400'; symbol = '='; textColor = 'text-white'; } 
+                        else { symbol = '👶'; }
+                        break;
+                    case 'slippery': symbol = '👶'; break;
+                }
+            }
+            return {bgColor, symbol, textColor};
+        }
+
+        function applyEntryStyle(dayEl, entry) {
+            if (entry.hadIntercourse) {
+                const intercourseIcon = document.createElement('span');
+                intercourseIcon.className = 'absolute top-1 right-1 text-red-500 text-lg';
+                intercourseIcon.textContent = '❤️';
+                dayEl.appendChild(intercourseIcon);
+            }
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'flex-grow flex flex-col justify-center items-center text-center';
+            const {bgColor, symbol, textColor} = getCycleColorAndSymbol(entry);
+            if (symbol === '👶') {
+                contentWrapper.innerHTML = `<span class="symbol">👶</span><span class="text-xs">Poss. Fértil</span>`;
+            } else {
+                contentWrapper.innerHTML = `<span class="symbol ${textColor}">${symbol}</span>`;
+            }
+            dayEl.classList.add(bgColor);
+            dayEl.appendChild(contentWrapper);
+        }
+        
+        function findLastPeakDate(currentDate) {
+            let lastPeak = null;
+            for (let i = 0; i < 40; i++) {
+                const dateToCheck = currentDate.subtract(i, 'day').format('YYYY-MM-DD');
+                if (entries[dateToCheck] && entries[dateToCheck].isPeak) {
+                    lastPeak = dayjs(dateToCheck);
+                    break;
+                }
+            }
+            return lastPeak;
+        }
+
+        function renderCycleChartAndHistory() {
+            // Clear previous content
+            cycleChartContainer.innerHTML = '';
+            cycleHistoryTableBody.innerHTML = '';
+
+            const sortedDates = Object.keys(entries).sort();
+            if (sortedDates.length === 0) {
+                cycleChartContainer.style.display = 'block';
+                cycleChartContainer.innerHTML = '<p class="text-gray-500">Ainda não há dados suficientes para gerar o gráfico do ciclo.</p>';
+                cycleHistoryTableBody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-gray-500">Nenhum ciclo registrado.</td></tr>';
+                return;
+            }
+
+            let cycles = [];
+            let currentCycle = [];
+            sortedDates.forEach(dateStr => {
+                const entry = entries[dateStr];
+                if (entry.bleeding === 'menstruation' && (currentCycle.length === 0 || dayjs(dateStr).diff(dayjs(currentCycle[currentCycle.length - 1].date), 'day') > 10)) {
+                    if (currentCycle.length > 0) { cycles.push(currentCycle); }
+                    currentCycle = [];
+                }
+                currentCycle.push({ ...entry, date: dateStr });
+            });
+            if (currentCycle.length > 0) { cycles.push(currentCycle); }
+
+            const latestCycle = cycles[cycles.length - 1];
+            if(latestCycle) {
+                cycleChartContainer.style.display = 'flex';
+                latestCycle.forEach((day, index) => {
+                    const dayEl = document.createElement('div');
+                    dayEl.className = 'chart-day relative';
+                    const {bgColor, symbol, textColor} = getCycleColorAndSymbol(day);
+                    dayEl.classList.add(bgColor, textColor);
+                    const dayNumber = document.createElement('span');
+                    dayNumber.textContent = index + 1;
+                    dayEl.appendChild(dayNumber);
+                    const symbolEl = document.createElement('span');
+                    symbolEl.className = 'symbol-small';
+                    symbolEl.textContent = symbol === '👶' ? '👶' : symbol;
+                    dayEl.appendChild(symbolEl);
+                    if (day.hadIntercourse) {
+                        const intercourseIcon = document.createElement('span');
+                        intercourseIcon.className = 'absolute top-0 right-0 text-red-500 text-xs';
+                        intercourseIcon.textContent = '❤️';
+                        dayEl.appendChild(intercourseIcon);
+                    }
+                    cycleChartContainer.appendChild(dayEl);
+                });
+            } else {
+                cycleChartContainer.style.display = 'block';
+                cycleChartContainer.innerHTML = '<p class="text-gray-500">Nenhum ciclo atual para exibir.</p>';
+            }
+
+            const pastCycles = (cycles.length > 1) ? cycles.slice(0, -1).reverse() : [];
+            if (pastCycles.length > 0) {
+                pastCycles.forEach(cycle => {
+                    const startDate = dayjs(cycle[0].date).format('DD/MM/YYYY');
+                    const duration = cycle.length;
+                    const peakDayEntry = cycle.find(d => d.isPeak);
+                    const peakDay = peakDayEntry ? dayjs(peakDayEntry.date).diff(dayjs(cycle[0].date), 'day') + 1 : 'N/A';
+                    const row = document.createElement('tr');
+                    row.className = 'border-b';
+                    row.innerHTML = `<td class="p-2">${startDate}</td><td class="p-2">${duration} dias</td><td class="p-2">${peakDay}</td>`;
+                    cycleHistoryTableBody.appendChild(row);
+                });
+            } else {
+                cycleHistoryTableBody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-gray-500">Nenhum ciclo completo registrado.</td></tr>';
+            }
+        }
+
+        function updateInterpretation() {
+            const sortedDates = Object.keys(entries).sort();
+            if (sortedDates.length === 0) {
+                interpretationText.textContent = "Comece a registrar para ver a interpretação do seu ciclo.";
+                return;
+            }
+            const lastEntryDateStr = sortedDates[sortedDates.length - 1];
+            const lastEntry = entries[lastEntryDateStr];
+            const peakDate = findLastPeakDate(dayjs(lastEntryDateStr));
+            if (peakDate) {
+                const daysAfterPeak = dayjs(lastEntryDateStr).diff(peakDate, 'day');
+                if (lastEntry.isPeak) { interpretationText.textContent = "Dia Ápice. Alta fertilidade."; return; }
+                if (daysAfterPeak > 0 && daysAfterPeak <= 3) { interpretationText.textContent = `Contagem Pós-Ápice (Dia ${daysAfterPeak}). Ainda possivelmente fértil.`; return; }
+                if (daysAfterPeak > 3) { interpretationText.textContent = "Fase Infértil (Pós-Ovulatória)."; return; }
+            }
+            if (lastEntry.bleeding === 'menstruation') { interpretationText.textContent = "Menstruação. Evitar relações para não mascarar o muco."; return; }
+            const { symbol } = getCycleColorAndSymbol(lastEntry);
+            if (symbol === '👶') { interpretationText.textContent = "Fase Fértil. Presença de muco com características férteis."; } 
+            else if (symbol === '=' || symbol === '|') { interpretationText.textContent = "Fase Infértil (Padrão Básico de Infertilidade)."; } 
+            else { interpretationText.textContent = "Observe as mudanças para identificar o início da fase fértil."; }
+        }
+
+        // --- Modal Logic ---
+        function openEntryModal(date) {
+            const dateStr = date.format('YYYY-MM-DD');
+            modalDateEl.textContent = date.format('dddd, D [de] MMMM');
+            formDateISOEl.value = dateStr;
+            const existingEntry = entries[dateStr];
+            if (existingEntry) {
+                form.elements.bleeding.value = existingEntry.bleeding || 'none';
+                form.elements.sensation.value = existingEntry.sensation || 'dry';
+                form.elements.appearance.value = existingEntry.appearance || 'none';
+                form.elements['is-peak'].checked = existingEntry.isPeak || false;
+                form.elements.hadIntercourse.checked = existingEntry.hadIntercourse || false;
+                document.getElementById('delete-entry').style.display = 'inline-block';
+            } else {
+                form.reset();
+                document.getElementById('delete-entry').style.display = 'none';
+            }
+            entryModal.classList.remove('hidden');
+        }
+        function closeEntryModal() { entryModal.classList.add('hidden'); form.reset(); }
+
+        // --- Notifications ---
+        function setupNotifications() {
+            if (!('Notification' in window)) {
+                notificationsStatus.textContent = "Navegador não suporta notificações.";
+                notificationsBtn.disabled = true;
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                notificationsStatus.textContent = "Lembretes ativos.";
+                notificationsBtn.disabled = true;
+            } else if (Notification.permission === 'denied') {
+                notificationsStatus.textContent = "Lembretes bloqueados.";
+                notificationsBtn.disabled = true;
+            }
+            notificationsBtn.addEventListener('click', () => {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        notificationsStatus.textContent = "Lembretes ativados!";
+                        notificationsBtn.disabled = true;
+                        new Notification("Lembretes Ativados!", { body: "Você receberá um lembrete para registrar suas observações." });
+                    }
+                });
+            });
+        }
+        
+        // --- AI Chat ---
+        function setupAIChat() {
+            aiSubmitBtn.addEventListener('click', handleAIChat);
+            aiPromptInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleAIChat();
+                }
+            });
+        }
+
+        async function handleAIChat() {
+            const userPrompt = aiPromptInput.value.trim();
+            if (!userPrompt) return;
+
+            aiResponsePlaceholder.style.display = 'none';
+            aiResponseText.innerHTML = '';
+            aiLoadingIndicator.style.display = 'block';
+            aiSubmitBtn.disabled = true;
+
+            try {
+                const fullPrompt = `Você é um assistente especialista no Método Billings de ovulação. Responda à seguinte pergunta de forma clara, educativa e concisa, com base nos princípios do método. Pergunta: "${userPrompt}"`;
+                
+                let chatHistory = [{ role: "user", parts: [{ text: fullPrompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Provided by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    aiResponseText.innerHTML = text.replace(/\n/g, '<br>');
+                } else {
+                    aiResponseText.textContent = "Não foi possível obter uma resposta. Tente novamente.";
+                }
+
+            } catch (error) {
+                console.error("AI Chat Error:", error);
+                aiResponseText.textContent = "Ocorreu um erro ao conectar com a IA. Verifique sua conexão e tente novamente.";
+            } finally {
+                aiLoadingIndicator.style.display = 'none';
+                aiSubmitBtn.disabled = false;
+                aiPromptInput.value = '';
+            }
+        }
+
+
+        // --- Event Listeners ---
+        document.getElementById('prev-month').addEventListener('click', () => { currentMonth = currentMonth.subtract(1, 'month'); renderCalendar(); });
+        document.getElementById('next-month').addEventListener('click', () => { currentMonth = currentMonth.add(1, 'month'); renderCalendar(); });
+        document.getElementById('cancel-entry').addEventListener('click', closeEntryModal);
+        entryModal.addEventListener('click', (e) => { if (e.target === entryModal) closeEntryModal(); });
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const date = formDateISOEl.value;
+            const data = {
+                bleeding: form.elements.bleeding.value,
+                sensation: form.elements.sensation.value,
+                appearance: form.elements.appearance.value,
+                isPeak: form.elements['is-peak'].checked,
+                hadIntercourse: form.elements.hadIntercourse.checked,
+                lastUpdated: new Date().toISOString()
+            };
+            const entryRef = doc(db, 'artifacts', appId, 'users', userId, 'entries', date);
+            try { await setDoc(entryRef, data); closeEntryModal(); } 
+            catch (error) { console.error("Error saving entry: ", error); }
+        });
+        document.getElementById('delete-entry').addEventListener('click', () => { dateToDelete = formDateISOEl.value; deleteConfirmModal.classList.remove('hidden'); });
+        document.getElementById('cancel-delete-btn').addEventListener('click', () => { deleteConfirmModal.classList.add('hidden'); dateToDelete = null; });
+        document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+            if (!dateToDelete || !userId) return;
+            const entryRef = doc(db, 'artifacts', appId, 'users', userId, 'entries', dateToDelete);
+            try { await deleteDoc(entryRef); deleteConfirmModal.classList.add('hidden'); closeEntryModal(); dateToDelete = null; } 
+            catch (error) { console.error("Error deleting entry: ", error); }
+        });
+
+    </script>
+</body>
+</html>
