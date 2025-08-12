@@ -242,15 +242,15 @@
         import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
-        const firebaseConfig = {
-          apiKey: "AIzaSyAauc7j8EMG0MrIMwJO6pIm7XjU-QgGXxc",
-          authDomain: "meu-diario-billings.firebaseapp.com",
-          projectId: "meu-diario-billings",
-          storageBucket: "meu-diario-billings.appspot.com",
-          messagingSenderId: "60903151517",
-          appId: "1:60903151517:web:dd4ab7c33fd9a928340174",
-          measurementId: "G-6SH2J0670Z"
-        };
+        // This config is provided by the environment in which the code is run
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config)
+            : {
+                // Fallback for local development. Do not add real keys here.
+                apiKey: "YOUR_API_KEY",
+                authDomain: "YOUR_AUTH_DOMAIN",
+                projectId: "YOUR_PROJECT_ID"
+            };
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'billings-app-default';
 
         const app = initializeApp(firebaseConfig);
@@ -412,7 +412,7 @@
                         if (entry.appearance === 'none') { bgColor = 'bg-yellow-400'; symbol = '='; textColor = 'text-white'; } 
                         else { symbol = '👶'; }
                         break;
-                    case 'slippery': symbol = '👶'; break;
+                    case 'slippery': symbol = '�'; break;
                 }
             }
             return {bgColor, symbol, textColor};
@@ -611,7 +611,10 @@
                 
                 let chatHistory = [{ role: "user", parts: [{ text: fullPrompt }] }];
                 const payload = { contents: chatHistory };
-                const apiKey = ""; // Provided by the environment
+                
+                // This will be securely provided by the environment, so it's safe to leave it empty here.
+                const apiKey = ""; 
+                
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -676,3 +679,4 @@
     </script>
 </body>
 </html>
+�
