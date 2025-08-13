@@ -80,12 +80,37 @@
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
+    
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-lg shadow-lg text-center max-w-md w-full">
+            <h1 class="text-3xl font-bold text-pink-600 mb-2">Bem-vindo!</h1>
+            <p class="text-gray-600 mb-6">Seu diário do ciclo, seguro e sincronizado.</p>
+            
+            <button id="create-new-journal" class="w-full bg-pink-600 text-white py-3 rounded-md font-semibold hover:bg-pink-700 transition-colors mb-4">
+                Criar Novo Diário
+            </button>
+
+            <div class="text-center my-2 text-gray-500">ou</div>
+            
+            <div id="access-existing">
+                <p class="font-medium mb-2">Acessar com ID do Diário:</p>
+                <input type="text" id="journal-id-input" placeholder="Cole o ID do diário aqui" class="w-full p-3 border rounded-md text-center mb-3">
+                <button id="access-journal-btn" class="w-full bg-gray-600 text-white py-3 rounded-md font-semibold hover:bg-gray-700 transition-colors">
+                    Acessar Diário
+                </button>
+            </div>
+             <p id="welcome-error" class="text-red-500 text-sm mt-4"></p>
+        </div>
+    </div>
 
     <!-- Main App Container -->
-    <div id="app" class="container mx-auto p-4 max-w-5xl">
+    <div id="app" class="container mx-auto p-4 max-w-5xl hidden">
         <header class="text-center mb-6">
             <h1 class="text-3xl font-bold text-pink-600">Diário do Método Billings</h1>
-            <p class="text-gray-600 mt-2">Acompanhe, aprenda e tire suas dúvidas.</p>
+            <div id="journal-id-display" class="mt-4 text-sm text-gray-500 bg-gray-200 p-2 rounded-md">
+                <!-- Journal ID will be displayed here -->
+            </div>
         </header>
 
         <div class="space-y-4">
@@ -259,11 +284,13 @@
 
         let currentMonth = dayjs().locale('pt-br');
         let entries = {};
-        let userId = null;
+        let journalId = null;
         let unsubscribe = null;
         let dateToDelete = null;
 
         // --- UI Elements ---
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const appContainer = document.getElementById('app');
         const calendarGrid = document.getElementById('calendar-grid');
         const monthYearEl = document.getElementById('current-month-year');
         const entryModal = document.getElementById('entry-modal');
@@ -283,8 +310,18 @@
         const aiResponseText = document.getElementById('ai-response-text');
 
         // --- Initialization ---
-        function initializeAppView(uid) {
-            userId = uid;
+        function initializeAppView(id) {
+            journalId = id;
+            localStorage.setItem('billingsJournalId', journalId);
+            
+            document.getElementById('journal-id-display').innerHTML = `
+                <p>ID do Diário (para compartilhar):</p>
+                <p class="font-mono bg-white px-2 py-1 rounded mt-1 text-pink-600">${journalId}</p>
+            `;
+            
+            welcomeScreen.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+            
             listenToEntries();
             setupNotifications();
             setupAccordion();
@@ -293,7 +330,26 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                initializeAppView(user.uid);
+                const savedJournalId = localStorage.getItem('billingsJournalId');
+                if (savedJournalId) {
+                    initializeAppView(savedJournalId);
+                } else {
+                    welcomeScreen.classList.remove('hidden');
+                    appContainer.classList.add('hidden');
+                }
+
+                document.getElementById('create-new-journal').onclick = () => {
+                    initializeAppView(user.uid);
+                };
+
+                document.getElementById('access-journal-btn').onclick = () => {
+                    const inputId = document.getElementById('journal-id-input').value.trim();
+                    if (inputId) {
+                        initializeAppView(inputId);
+                    } else {
+                        document.getElementById('welcome-error').textContent = "Por favor, insira um ID válido.";
+                    }
+                };
             } else {
                 signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
             }
@@ -350,8 +406,9 @@
         // --- Firestore Listener ---
         function listenToEntries() {
             if (unsubscribe) unsubscribe();
-            if (!userId) return;
-            const entriesCollection = collection(db, 'artifacts', appId, 'users', userId, 'entries');
+            if (!journalId) return;
+            // Using a public path for shared access
+            const entriesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'journals', journalId, 'entries');
             unsubscribe = onSnapshot(entriesCollection, (snapshot) => {
                 entries = {};
                 snapshot.forEach((doc) => { entries[doc.id] = doc.data(); });
@@ -612,8 +669,7 @@
                 let chatHistory = [{ role: "user", parts: [{ text: fullPrompt }] }];
                 const payload = { contents: chatHistory };
                 
-                // This will be securely provided by the environment, so it's safe to leave it empty here.
-                const apiKey = ""; 
+                const apiKey = "AIzaSyA87SY0roNF3C5z9z8yq0DgjDxxNY2ZDcQ"; 
                 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
                 
@@ -663,15 +719,15 @@
                 hadIntercourse: form.elements.hadIntercourse.checked,
                 lastUpdated: new Date().toISOString()
             };
-            const entryRef = doc(db, 'artifacts', appId, 'users', userId, 'entries', date);
+            const entryRef = doc(db, 'artifacts', appId, 'public', 'data', 'journals', journalId, 'entries', date);
             try { await setDoc(entryRef, data); closeEntryModal(); } 
             catch (error) { console.error("Error saving entry: ", error); }
         });
         document.getElementById('delete-entry').addEventListener('click', () => { dateToDelete = formDateISOEl.value; deleteConfirmModal.classList.remove('hidden'); });
         document.getElementById('cancel-delete-btn').addEventListener('click', () => { deleteConfirmModal.classList.add('hidden'); dateToDelete = null; });
         document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
-            if (!dateToDelete || !userId) return;
-            const entryRef = doc(db, 'artifacts', appId, 'users', userId, 'entries', dateToDelete);
+            if (!dateToDelete || !journalId) return;
+            const entryRef = doc(db, 'artifacts', appId, 'public', 'data', 'journals', journalId, 'entries', dateToDelete);
             try { await deleteDoc(entryRef); deleteConfirmModal.classList.add('hidden'); closeEntryModal(); dateToDelete = null; } 
             catch (error) { console.error("Error deleting entry: ", error); }
         });
