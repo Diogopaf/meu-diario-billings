@@ -339,6 +339,7 @@
                 }
 
                 document.getElementById('create-new-journal').onclick = () => {
+                    // Use the authenticated user's UID as the journal ID for sharing
                     initializeAppView(user.uid);
                 };
 
@@ -407,13 +408,16 @@
         function listenToEntries() {
             if (unsubscribe) unsubscribe();
             if (!journalId) return;
-            // Using a public path for shared access
+            // CORRECTED PATH: Use the public path for sharing, matching the new security rules
             const entriesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'journals', journalId, 'entries');
             unsubscribe = onSnapshot(entriesCollection, (snapshot) => {
                 entries = {};
                 snapshot.forEach((doc) => { entries[doc.id] = doc.data(); });
                 renderAll();
-            }, (error) => console.error("Error listening to entries:", error));
+            }, (error) => {
+                console.error("Error listening to entries:", error);
+                alert("Não foi possível carregar os dados do diário. Verifique o ID e suas regras de segurança no Firebase.");
+            });
         }
 
         // --- Main Render Functions ---
