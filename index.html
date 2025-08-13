@@ -63,20 +63,6 @@
             font-size: 1.2rem;
             font-weight: bold;
         }
-        .accordion-header {
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .accordion-content {
-            transition: max-height 0.3s ease-out;
-            max-height: 0;
-            overflow: hidden;
-        }
-        .accordion-content.open {
-            max-height: 2000px; /* Adjust as needed */
-        }
-        .prose p { margin-bottom: 1em; }
-        .prose ul { list-style-position: inside; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -113,115 +99,56 @@
             </div>
         </header>
 
-        <div class="space-y-4">
-            <!-- Accordion 1: Cycle Journal -->
-            <div class="bg-white rounded-lg shadow-lg">
-                <div class="accordion-header p-4 flex justify-between items-center bg-gray-50 rounded-t-lg" data-target="#journal-content">
-                    <h2 class="text-xl font-semibold">Diário do Ciclo</h2>
-                    <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
-                <div id="journal-content" class="accordion-content open p-4">
-                    <div id="interpretation-container" class="bg-pink-100 border-l-4 border-pink-500 text-pink-700 p-4 rounded-md shadow-md mb-6 text-center">
-                        <h3 class="font-bold">Status do Ciclo</h3>
-                        <p id="interpretation-text" class="mt-1">Aguardando dados...</p>
-                    </div>
-                    <div id="calendar-container">
-                        <div class="flex justify-between items-center mb-4">
-                            <button id="prev-month" class="p-2 rounded-full hover:bg-gray-200"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                            <h2 id="current-month-year" class="text-xl font-semibold"></h2>
-                            <button id="next-month" class="p-2 rounded-full hover:bg-gray-200"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
-                        </div>
-                        <div class="calendar-grid text-center font-medium text-gray-600 mb-2">
-                            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-                        </div>
-                        <div id="calendar-grid" class="calendar-grid"></div>
-                    </div>
-                </div>
-            </div>
+        <div id="interpretation-container" class="bg-pink-100 border-l-4 border-pink-500 text-pink-700 p-4 rounded-md shadow-md mb-6 text-center">
+            <h3 class="font-bold">Status do Ciclo</h3>
+            <p id="interpretation-text" class="mt-1">Aguardando dados...</p>
+        </div>
 
-            <!-- Accordion 2: Learning the Method -->
-            <div class="bg-white rounded-lg shadow-lg">
-                <div class="accordion-header p-4 flex justify-between items-center bg-gray-50 rounded-lg" data-target="#explanation-content">
-                    <h2 class="text-xl font-semibold">Aprendendo o Método</h2>
-                    <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
-                <div id="explanation-content" class="accordion-content p-4 prose max-w-none">
-                    <h3 class="font-semibold">Princípios Básicos</h3>
-                    <p>O Método de Ovulação Billings® baseia-se na observação da sensação na vulva e na aparência de qualquer muco cervical. Essas observações mudam ao longo do ciclo e indicam os períodos de infertilidade e fertilidade.</p>
-                    
-                    <h4 class="font-semibold">O Que Observar?</h4>
-                    <ul>
-                        <li><strong>Sensação na Vulva:</strong> Durante as atividades diárias (andar, sentar), preste atenção se a sensação é de <span class="font-bold">seca</span>, <span class="font-bold">úmida</span> ou <span class="font-bold">escorregadia</span>.</li>
-                        <li><strong>Aparência do Muco:</strong> Observe a aparência de qualquer secreção. Ela pode ser <span class="font-bold">opaca</span>, <span class="font-bold">turva</span>, <span class="font-bold">transparente</span>, <span class="font-bold">elástica</span> (como clara de ovo), etc.</li>
-                    </ul>
-
-                    <h4 class="font-semibold">As Fases do Ciclo</h4>
-                    <ul>
-                        <li><strong>Padrão Básico de Infertilidade (PBI):</strong> É um padrão sem mudanças que ocorre antes da ovulação. Pode ser de secura total (sem muco) ou um fluxo constante que não muda de dia para dia. Durante o PBI, não há fertilidade.</li>
-                        <li><strong>Fase Fértil:</strong> Começa quando há qualquer mudança no PBI. O muco começa a aparecer ou mudar, tornando-se progressivamente mais úmido, elástico e escorregadio. A sensação na vulva muda de seca para não mais seca.</li>
-                        <li><strong>Dia Ápice:</strong> É o último dia de sensação escorregadia na vulva. Este é o dia de máxima fertilidade e a ovulação ocorre muito perto deste dia. Após o Ápice, a sensação muda abruptamente para seca ou pegajosa.</li>
-                        <li><strong>Fase Pós-Ápice:</strong> Os 3 dias seguintes ao dia Ápice são considerados possivelmente férteis. A partir da manhã do 4º dia após o Ápice, inicia-se a fase infértil pós-ovulatória, que dura até a próxima menstruação.</li>
-                    </ul>
-                </div>
+        <div id="calendar-container" class="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <button id="prev-month" class="p-2 rounded-full hover:bg-gray-200"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                <h2 id="current-month-year" class="text-xl font-semibold"></h2>
+                <button id="next-month" class="p-2 rounded-full hover:bg-gray-200"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
             </div>
-            
-            <!-- Accordion 3: AI Chat -->
-            <div class="bg-white rounded-lg shadow-lg">
-                <div class="accordion-header p-4 flex justify-between items-center bg-gray-50 rounded-lg" data-target="#ai-chat-content">
-                    <h2 class="text-xl font-semibold">Tire suas Dúvidas com IA</h2>
-                    <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
-                <div id="ai-chat-content" class="accordion-content p-4">
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="ai-prompt-input" placeholder="Ex: O que é o dia Ápice?" class="flex-grow p-2 border rounded-md">
-                        <button id="ai-submit-btn" class="bg-pink-600 text-white font-bold py-2 px-4 rounded hover:bg-pink-700 transition-colors">Perguntar</button>
-                    </div>
-                    <div id="ai-response-container" class="mt-4 p-4 bg-gray-50 rounded-md min-h-[50px]">
-                        <p id="ai-response-placeholder" class="text-gray-500">A resposta da IA aparecerá aqui.</p>
-                        <div id="ai-loading-indicator" class="hidden">
-                            <p class="text-gray-600 animate-pulse">Pensando...</p>
-                        </div>
-                        <div id="ai-response-text" class="prose max-w-none"></div>
-                    </div>
-                </div>
+            <div class="calendar-grid text-center font-medium text-gray-600 mb-2">
+                <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
             </div>
+            <div id="calendar-grid" class="calendar-grid"></div>
+        </div>
 
-            <!-- Other Sections -->
-            <div id="other-sections">
-                <div class="mt-6 p-4 bg-white rounded-lg shadow-lg">
-                    <h3 class="font-semibold text-lg mb-4">Gráfico do Ciclo Atual</h3>
-                    <div id="cycle-chart-container" class="cycle-chart-grid">
-                        <!-- Chart will be rendered here by JavaScript -->
-                    </div>
-                </div>
-                <div class="mt-6 p-4 bg-white rounded-lg shadow-lg">
-                    <h3 class="font-semibold text-lg mb-4">Histórico de Ciclos</h3>
-                    <div class="overflow-x-auto">
-                        <table id="cycle-history-table" class="min-w-full text-sm text-left">
-                            <thead class="bg-gray-100"><tr><th class="p-2">Início</th><th class="p-2">Duração</th><th class="p-2">Dia do Ápice</th></tr></thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="mt-6 p-4 bg-white rounded-lg shadow-lg">
-                    <h3 class="font-semibold text-lg mb-2">Configurações</h3>
-                    <div id="notifications-container">
-                        <button id="enable-notifications-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700">Ativar Lembretes Diários</button>
-                        <p id="notifications-status" class="text-sm text-gray-600 mt-2"></p>
-                    </div>
-                </div>
-                <div class="mt-6 p-4 bg-white rounded-lg shadow-lg">
-                    <h3 class="font-semibold text-lg mb-2">Legenda</h3>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 text-sm">
-                        <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-red-500 mr-2"></div><span>Sangramento</span></div>
-                        <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-green-500 mr-2"></div><span>Seca / Infértil</span></div>
-                        <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-yellow-400 mr-2"></div><span>Fluxo Infértil</span></div>
-                        <div class="flex items-center"><span class="text-2xl mr-2">👶</span><span>Poss. Fértil</span></div>
-                        <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-yellow-200 mr-2 flex justify-center items-center font-bold">1</div><span>Pós-Ápice</span></div>
-                        <div class="flex items-center"><span class="font-bold text-xl mr-2">X</span><span>Dia Ápice</span></div>
-                        <div class="flex items-center"><span class="text-red-500 mr-2 text-xl">❤️</span><span>Ato conjugal</span></div>
-                    </div>
-                </div>
+        <div class="mt-6 p-4 bg-white rounded-lg shadow-lg">
+            <h3 class="font-semibold text-lg mb-4">Gráfico do Ciclo Atual</h3>
+            <div id="cycle-chart-container" class="cycle-chart-grid"></div>
+        </div>
+        
+        <div class="mt-6 p-4 bg-white rounded-lg shadow-lg">
+            <h3 class="font-semibold text-lg mb-4">Histórico de Ciclos</h3>
+            <div class="overflow-x-auto">
+                <table id="cycle-history-table" class="min-w-full text-sm text-left">
+                    <thead class="bg-gray-100"><tr><th class="p-2">Início</th><th class="p-2">Duração</th><th class="p-2">Dia do Ápice</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="mt-6 p-4 bg-white rounded-lg shadow-lg">
+             <h3 class="font-semibold text-lg mb-2">Configurações</h3>
+             <div id="notifications-container">
+                 <button id="enable-notifications-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700">Ativar Lembretes Diários</button>
+                 <p id="notifications-status" class="text-sm text-gray-600 mt-2"></p>
+             </div>
+        </div>
+
+        <div class="mt-6 p-4 bg-white rounded-lg shadow-lg">
+            <h3 class="font-semibold text-lg mb-2">Legenda</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 text-sm">
+                <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-red-500 mr-2"></div><span>Sangramento</span></div>
+                <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-green-500 mr-2"></div><span>Seca / Infértil</span></div>
+                <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-yellow-400 mr-2"></div><span>Fluxo Infértil</span></div>
+                <div class="flex items-center"><span class="text-2xl mr-2">👶</span><span>Poss. Fértil</span></div>
+                <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-yellow-200 mr-2 flex justify-center items-center font-bold">1</div><span>Pós-Ápice</span></div>
+                <div class="flex items-center"><span class="font-bold text-xl mr-2">X</span><span>Dia Ápice</span></div>
+                <div class="flex items-center"><span class="text-red-500 mr-2 text-xl">❤️</span><span>Ato conjugal</span></div>
             </div>
         </div>
     </div>
@@ -303,12 +230,7 @@
         const interpretationText = document.getElementById('interpretation-text');
         const notificationsBtn = document.getElementById('enable-notifications-btn');
         const notificationsStatus = document.getElementById('notifications-status');
-        const aiPromptInput = document.getElementById('ai-prompt-input');
-        const aiSubmitBtn = document.getElementById('ai-submit-btn');
-        const aiResponsePlaceholder = document.getElementById('ai-response-placeholder');
-        const aiLoadingIndicator = document.getElementById('ai-loading-indicator');
-        const aiResponseText = document.getElementById('ai-response-text');
-
+        
         // --- Initialization ---
         function initializeAppView(id) {
             journalId = id;
@@ -324,8 +246,6 @@
             
             listenToEntries();
             setupNotifications();
-            setupAccordion();
-            setupAIChat();
         }
 
         onAuthStateChanged(auth, (user) => {
@@ -339,7 +259,6 @@
                 }
 
                 document.getElementById('create-new-journal').onclick = () => {
-                    // Use the authenticated user's UID as the journal ID for sharing
                     initializeAppView(user.uid);
                 };
 
@@ -355,60 +274,11 @@
                 signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
             }
         });
-        
-        // --- Accordion Logic ---
-        function setupAccordion() {
-            const headers = document.querySelectorAll('.accordion-header');
-            const journalContent = document.getElementById('journal-content');
-            const otherSections = document.getElementById('other-sections');
-
-            // Initially hide all but the journal
-            document.querySelectorAll('.accordion-content').forEach(content => {
-                if(content.id !== 'journal-content') {
-                    content.classList.remove('open');
-                    content.previousElementSibling.querySelector('svg').style.transform = 'rotate(0deg)';
-                } else {
-                     otherSections.style.display = 'block';
-                     content.previousElementSibling.querySelector('svg').style.transform = 'rotate(180deg)';
-                }
-            });
-
-            headers.forEach(header => {
-                header.addEventListener('click', () => {
-                    const target = document.querySelector(header.dataset.target);
-                    const icon = header.querySelector('svg');
-
-                    if (target.classList.contains('open')) {
-                        target.classList.remove('open');
-                        icon.style.transform = 'rotate(0deg)';
-                        if (target.id === 'journal-content') {
-                            otherSections.style.display = 'none';
-                        }
-                    } else {
-                        // Optional: close others when one opens
-                        document.querySelectorAll('.accordion-content.open').forEach(openContent => {
-                            openContent.classList.remove('open');
-                            openContent.previousElementSibling.querySelector('svg').style.transform = 'rotate(0deg)';
-                            if (openContent.id === 'journal-content') {
-                                otherSections.style.display = 'none';
-                            }
-                        });
-                        target.classList.add('open');
-                        icon.style.transform = 'rotate(180deg)';
-                        if (target.id === 'journal-content') {
-                            otherSections.style.display = 'block';
-                        }
-                    }
-                });
-            });
-        }
-
 
         // --- Firestore Listener ---
         function listenToEntries() {
             if (unsubscribe) unsubscribe();
             if (!journalId) return;
-            // CORRECTED PATH: Use the public path for sharing, matching the new security rules
             const entriesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'journals', journalId, 'entries');
             unsubscribe = onSnapshot(entriesCollection, (snapshot) => {
                 entries = {};
@@ -511,18 +381,14 @@
         }
 
         function renderCycleChartAndHistory() {
-            // Clear previous content
             cycleChartContainer.innerHTML = '';
             cycleHistoryTableBody.innerHTML = '';
-
             const sortedDates = Object.keys(entries).sort();
             if (sortedDates.length === 0) {
-                cycleChartContainer.style.display = 'block';
                 cycleChartContainer.innerHTML = '<p class="text-gray-500">Ainda não há dados suficientes para gerar o gráfico do ciclo.</p>';
                 cycleHistoryTableBody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-gray-500">Nenhum ciclo registrado.</td></tr>';
                 return;
             }
-
             let cycles = [];
             let currentCycle = [];
             sortedDates.forEach(dateStr => {
@@ -534,10 +400,8 @@
                 currentCycle.push({ ...entry, date: dateStr });
             });
             if (currentCycle.length > 0) { cycles.push(currentCycle); }
-
             const latestCycle = cycles[cycles.length - 1];
             if(latestCycle) {
-                cycleChartContainer.style.display = 'flex';
                 latestCycle.forEach((day, index) => {
                     const dayEl = document.createElement('div');
                     dayEl.className = 'chart-day relative';
@@ -558,11 +422,7 @@
                     }
                     cycleChartContainer.appendChild(dayEl);
                 });
-            } else {
-                cycleChartContainer.style.display = 'block';
-                cycleChartContainer.innerHTML = '<p class="text-gray-500">Nenhum ciclo atual para exibir.</p>';
             }
-
             const pastCycles = (cycles.length > 1) ? cycles.slice(0, -1).reverse() : [];
             if (pastCycles.length > 0) {
                 pastCycles.forEach(cycle => {
@@ -648,65 +508,6 @@
             });
         }
         
-        // --- AI Chat ---
-        function setupAIChat() {
-            aiSubmitBtn.addEventListener('click', handleAIChat);
-            aiPromptInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    handleAIChat();
-                }
-            });
-        }
-
-        async function handleAIChat() {
-            const userPrompt = aiPromptInput.value.trim();
-            if (!userPrompt) return;
-
-            aiResponsePlaceholder.style.display = 'none';
-            aiResponseText.innerHTML = '';
-            aiLoadingIndicator.style.display = 'block';
-            aiSubmitBtn.disabled = true;
-
-            try {
-                const fullPrompt = `Você é um assistente especialista no Método Billings de ovulação. Responda à seguinte pergunta de forma clara, educativa e concisa, com base nos princípios do método. Pergunta: "${userPrompt}"`;
-                
-                let chatHistory = [{ role: "user", parts: [{ text: fullPrompt }] }];
-                const payload = { contents: chatHistory };
-                
-                const apiKey = "AIzaSyA87SY0roNF3C5z9z8yq0DgjDxxNY2ZDcQ"; 
-                
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-                
-                if (result.candidates && result.candidates.length > 0) {
-                    const text = result.candidates[0].content.parts[0].text;
-                    aiResponseText.innerHTML = text.replace(/\n/g, '<br>');
-                } else {
-                    aiResponseText.textContent = "Não foi possível obter uma resposta. Tente novamente.";
-                }
-
-            } catch (error) {
-                console.error("AI Chat Error:", error);
-                aiResponseText.textContent = "Ocorreu um erro ao conectar com a IA. Verifique sua conexão e tente novamente.";
-            } finally {
-                aiLoadingIndicator.style.display = 'none';
-                aiSubmitBtn.disabled = false;
-                aiPromptInput.value = '';
-            }
-        }
-
-
         // --- Event Listeners ---
         document.getElementById('prev-month').addEventListener('click', () => { currentMonth = currentMonth.subtract(1, 'month'); renderCalendar(); });
         document.getElementById('next-month').addEventListener('click', () => { currentMonth = currentMonth.add(1, 'month'); renderCalendar(); });
